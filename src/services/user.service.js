@@ -15,6 +15,19 @@ export async function createUser(data) {
   return await userRepository.save(newUser);
 }
 
+
 export async function findUserByEmail(email) {
   return await userRepository.findOneBy({ email });
+}
+
+export async function updateUserById(id, changes) {
+  if (changes.password) {
+    changes.password = await bcrypt.hash(changes.password, 10);
+  }
+  await userRepository.update(id, changes);
+  return await userRepository.findOneBy({ id });
+}
+
+export async function deleteUserById(id) {
+  return await userRepository.delete(id);
 }
