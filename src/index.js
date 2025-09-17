@@ -17,7 +17,7 @@ connectDB()
   .then(() => {
     // Carga todas las rutas de la aplicación
     routerApi(app);
-
+    await createUser(); // Crea usuarios iniciales
     // Levanta el servidor Express
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {

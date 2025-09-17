@@ -1,84 +1,51 @@
-import {
-  findNotas,
-  findNotaById,
-  createNota,
-  updateNota,
-  deleteNota,
-} from "../services/notas.services.js";
+import { updateUserById, deleteUserById } from "../services/user.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
 
-export class NotasController {
-  async getAllNotas(req, res) {
+export class CrudController {
+  // PATCH /profile/private
+  async updatePrivateProfile(req, res) {
     try {
-      const notas = await findNotas();
-      handleSuccess(res, 200, "Notas obtenidas exitosamente", notas);
+      // Extraer id del usuario autenticado desde el token JWT
+      const userId = req.user?.sub || req.user?.id;
+      const { email, password } = req.body;
+
+      if (!email && !password) {
+        return handleErrorClient(res, 400, "Debes enviar email y/o password para actualizar.");
+      }
+
+      const changes = {};
+      if (email) changes.email = email;
+      if (password) changes.password = password;
+
+      const updatedUser = await updateUserById(userId, changes);
+      if (!updatedUser) {
+        return handleErrorClient(res, 404, "Usuario no encontrado.");
+      }
+      handleSuccess(res, 200, "Perfil actualizado exitosamente", { user: updatedUser });
     } catch (error) {
-      handleErrorServer(res, 500, "Error al obtener las notas", error.message);
+      handleErrorServer(res, 500, "Error al actualizar el perfil", error.message);
     }
   }
 
-  async getNotaById(req, res) {
+  // DELETE /profile/private
+  async deletePrivateProfile(req, res) {
     try {
-      const { id } = req.params;
-      
-      if (!id || isNaN(id)) {
-        return handleErrorClient(res, 400, "ID de nota inválido");
-      }
-      
-      const nota = await findNotaById(id);
-      handleSuccess(res, 200, "Nota obtenida exitosamente", nota);
-    } catch (error) {
-      handleErrorClient(res, 404, error.message);
-    }
-  }
+      // Extraer id del usuario autenticado desde el token JWT
+      const userId = req.user?.sub || req.user?.id;
 
-  async createNota(req, res) {
-    try {
-      const data = req.body;
-      
-      if (!data || Object.keys(data).length === 0) {
-        return handleErrorClient(res, 400, "Datos de la nota son requeridos");
+      // Validar que no se pase un id por body 
+      if (req.body.id || req.query.id) {
+        return handleErrorClient(res, 400, "No se permite especificar id para eliminar. Solo puedes eliminar tu propia cuenta.");
       }
-      
-      const nuevaNota = await createNota(data);
-      handleSuccess(res, 201, "Nota creada exitosamente", nuevaNota);
-    } catch (error) {
-      handleErrorServer(res, 500, "Error al crear la nota", error.message);
-    }
-  }
 
-  async updateNota(req, res) {
-    try {
-      const { id } = req.params;
-      const changes = req.body;
-      
-      if (!id || isNaN(id)) {
-        return handleErrorClient(res, 400, "ID de nota inválido");
+      const result = await deleteUserById(userId);
+      if (result.affected === 0) {
+        return handleErrorClient(res, 404, "Usuario no encontrado.");
       }
-      
-      if (!changes || Object.keys(changes).length === 0) {
-        return handleErrorClient(res, 400, "Datos para actualizar son requeridos");
-      }
-      
-      const notaActualizada = await updateNota(id, changes);
-      handleSuccess(res, 200, "Nota actualizada exitosamente", notaActualizada);
+      handleSuccess(res, 200, "Perfil eliminado exitosamente", { id: userId });
     } catch (error) {
-      handleErrorClient(res, 404, error.message);
+      handleErrorServer(res, 500, "Error al eliminar el perfil", error.message);
     }
   }
-
-  async deleteNota(req, res) {
-    try {
-      const { id } = req.params;
-      
-      if (!id || isNaN(id)) {
-        return handleErrorClient(res, 400, "ID de nota inválido");
-      }
-      
-      await deleteNota(id);
-      handleSuccess(res, 200, "Nota eliminada exitosamente", { id });
-    } catch (error) {
-      handleErrorClient(res, 404, error.message);
-    }
-  }
+  
 }

@@ -1,36 +1,36 @@
 "use strict";
-import bcrypt from "bcryptjs";
-import { AppDataSource } from "../configDb.js";
-import { User } from "../entities/user.entity.js";
+import bcrypt from "bcrypt";
+import { AppDataSource } from "./configDB.js";
+import { User } from "../entities/user.entity.js"
 
-async function encryptPassword(password) {
-const saltRounds = 10;
-return await bcrypt.hash(password, saltRounds);
+
+async function encryptPassword(password){
+    const saltRounds = 10;
+    return await bcrypt.hash(password,saltRounds);
 }
 
-export async function createUsers() {
-    try {
-        const createUsers = AppDataSource.getRepository(User);
-        const count = await userRepository.count(); 
-        if (count > 0) ;
+export async function createUser() {
+    try{
+        const userRepository = AppDataSource.getRepository(User);
+        const count = await userRepository.count();
+        if (count > 0)return;
 
         const now = new Date();
 
+
+        //Crear usuarios iniciales
         await Promise.all([
-            userRepository.save(userRepository.create({
-                email: "correo@prueba.com",
-                password: await encryptPassword("password123"),
-            })),
-            userRepository.save(userRepository.create({
-                email: "correo@prueba.com",
-                password: await encryptPassword("password123"),
-            }))
-
+        userRepository.save(userRepository.create({
+            email: "correo@prueba.com",
+            password: await encryptPassword("correo123"),
+        })),
+        userRepository.save(userRepository.create({
+            email: "correo222@gmail.com",
+            password: await encryptPassword("prueba1"),
+        })),
     ]);
-
-    console.log("Usuarios iniciales creados exitosamente.");
-    } catch (error) {  
-        console.error("Error al crear usuarios iniciales:", error);
+    console.log("* Usuarios creados exitosamente");
+    } catch (error){
+        console.error("error al crear usuarios", error);
     }
-
 }
