@@ -14,11 +14,9 @@ app.get("/", (req, res) => {
 
 // Inicializa la conexión a la base de datos
 connectDB()
-  .then(() => {
-    // Carga todas las rutas de la aplicación
+  .then(async () => {
     routerApi(app);
-    await createUser(); // Crea usuarios iniciales
-    // Levanta el servidor Express
+    await createUser();
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
       console.log(`Servidor iniciado en http://localhost:${PORT}`);
