@@ -2,6 +2,7 @@
 import { DataSource } from "typeorm";
 import { DATABASE, DB_USERNAME, HOST, PASSWORD, DB_PORT } from "./configEnv.js";
 
+// modificacion para que funcione con postgres
 export const AppDataSource = new DataSource({
   type: "postgres",
   host: `${HOST}`,
