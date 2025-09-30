@@ -3,6 +3,8 @@ import express from "express";
 import morgan from "morgan";
 import { AppDataSource, connectDB } from "./config/configDB.js";
 import { routerApi } from "./routes/index.routes.js";
+import { HOST,PORT } from "./config/configEnv.js";
+import { createUser } from "./config/initialSetup.js";
 
 const app = express();
 app.use(express.json());
@@ -17,9 +19,9 @@ connectDB()
   .then(async () => {
     routerApi(app);
     await createUser();
-    const PORT = process.env.PORT || 3000;
+   
     app.listen(PORT, () => {
-      console.log(`Servidor iniciado en http://localhost:${PORT}`);
+      console.log(`Servidor iniciado en http://${HOST}:${PORT}/api`);
     });
   })
   .catch((error) => {
