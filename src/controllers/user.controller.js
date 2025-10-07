@@ -47,5 +47,7 @@ export class CrudController {
       handleErrorServer(res, 500, "Error al eliminar el perfil", error.message);
     }
   }
+
+  
   
 }
