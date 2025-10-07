@@ -16,7 +16,7 @@ export const authQueryValidation = Joi.object({
     password: Joi.string()
         .min(4)
         .max(16)
-        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)  //solo numeros y letras
+        .pattern(/^[a-zA-Z0-9]+$/)  //solo numeros y letras
         .required()
         .messages({
             "string.empty": "La contraseña no puede estar vacía.", 
