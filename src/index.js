@@ -1,12 +1,30 @@
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
-import { AppDataSource, connectDB } from "./config/configDB.js";
+import { AppDataSource, connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
 import { HOST,PORT } from "./config/configEnv.js";
 import { createUser } from "./config/initialSetup.js";
+import cors from "cors";
+
+
+
+
 
 const app = express();
+
+const corsOptions = {
+  origin: 'http://localhost:5173', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+
+};
+
+app.use(cors(corsOptions));
+
+
+
 app.use(express.json());
 app.use(morgan("dev"));
 // Ruta principal de bienvenida

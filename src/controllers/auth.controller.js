@@ -5,51 +5,12 @@ import {authQueryValidation} from "../validation/auth.validation.js";
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export async function login(req, res) {
   try {
       const { error, value } = authQueryValidation.validate(req.body); //llamado F.validacion
       if (error) {
         return handleErrorClient(res, 400, error.details[0].message);  //modificado ayudantia 4
       }
-
-
-
-
-
 
     const { email, password } = req.body;
     
@@ -70,11 +31,6 @@ export async function register(req, res) {
       if (error) {
         return handleErrorClient(res, 400, error.details[0].message);  //modificado ayudantia 4
       }
-
-
-
-
-
 
 
     const data = req.body;

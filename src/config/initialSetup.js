@@ -1,6 +1,6 @@
 "use strict";
 import bcrypt from "bcrypt";
-import { AppDataSource } from "./configDB.js";
+import { AppDataSource } from "./configDb.js";
 import { User } from "../entities/user.entity.js"
 
 
