@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 
 export async function login(dataUser) {
     try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+        const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
         const { email, password } = dataUser;
         const response = await axios.post(`${API_URL}/auth/login`, {
         email,
