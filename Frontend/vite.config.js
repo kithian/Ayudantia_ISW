@@ -19,5 +19,18 @@ export default defineConfig({
       '@assets': path.resolve(__dirname, './src/assets'),
       '@helpers': path.resolve(__dirname, './src/helpers')
     }
-  }
+  },
+
+  server: {
+    port: 443,
+    host: '0.0.0.0',
+
+strictPort: true, },
+    preview: {
+      host: '0.0.0.0',
+      port: 443,
+      strictPort: true,
+      cors: true,
+    },  
+
 });
