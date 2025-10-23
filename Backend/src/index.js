@@ -20,11 +20,16 @@ app.use(
 );
 app.use(express.json());
 app.use(morgan("dev"));
+app.use("/auth", authRoutes); 
+app.use("/profile", profileRoutes);
 
 // Ruta principal de bienvenida
 app.get("/", (req, res) => {
   res.send("¡Bienvenido a mi API REST con TypeORM!");
 });
+
+
+
 
 connectDB()
   .then(async () => {
@@ -32,7 +37,7 @@ connectDB()
     routerApi(app);
     await createUser();
     
-    app.listen(PORT, () => {
+    app.listen(PORT,  () => {
       console.log(`Servidor iniciado en http://${HOST}:${PORT}/api`);
     });
   })
