@@ -20,8 +20,8 @@ app.use(
 );
 app.use(express.json());
 app.use(morgan("dev"));
-app.use("/auth", authRoutes); 
-app.use("/profile", profileRoutes);
+
+// Ruta principal de bienvenida
 app.get("/", (req, res) => {
   res.send("¡Bienvenido a mi API REST con TypeORM!");
 });
