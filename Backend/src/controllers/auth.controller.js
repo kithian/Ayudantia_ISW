@@ -1,25 +1,20 @@
 import { loginUser } from "../services/auth.service.js";
-import { createUser } from "../services/user.service.js";
+import { createUser} from "../services/user.service.js"
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
-import {authQueryValidation} from "../validation/auth.validation.js";
-
-
+import { userCreateValidation, loginValidation } from "../validation/auth.validation.js";
 
 export async function login(req, res) {
   try {
-      const { error, value } = authQueryValidation.validate(req.body); //llamado F.validacion
-      if (error) {
-        return handleErrorClient(res, 400, error.details[0].message);  //modificado ayudantia 4
-      }
-
     const { email, password } = req.body;
     
-    if (!email || !password) {
-      return handleErrorClient(res, 400, "Email y contraseña son requeridos");
+    const { error } = loginValidation.validate({ email, password });
+    if (error) {
+      return handleErrorClient(res, 400, "Parametros invalidos", error.message);
     }
     
     const data = await loginUser(email, password);
     handleSuccess(res, 200, "Login exitoso", data);
+
   } catch (error) {
     handleErrorClient(res, 401, error.message);
   }
@@ -27,23 +22,26 @@ export async function login(req, res) {
 
 export async function register(req, res) {
   try {
-      const { error, value } = authQueryValidation.validate(req.body);  //llamado F.validacion
-      if (error) {
-        return handleErrorClient(res, 400, error.details[0].message);  //modificado ayudantia 4
-      }
-
-
     const data = req.body;
-    
-    if (!data.email || !data.password) {
-      return handleErrorClient(res, 400, "Email y contraseña son requeridos");
+
+    const { error } = userCreateValidation.validate({
+      email: data.email,
+      password: data.password,
+    });
+    if (error) {
+      return handleErrorClient(
+        res,
+        400,
+        "Parametros no validos",
+        error.message
+      );
     }
-    
+
     const newUser = await createUser(data);
-    delete newUser.password; // Nunca devolver la contraseña
+    delete newUser.password;
     handleSuccess(res, 201, "Usuario registrado exitosamente", newUser);
   } catch (error) {
-    if (error.code === '23505') { // Código de error de PostgreSQL para violación de unique constraint
+    if (error.code === "23505") {
       handleErrorClient(res, 409, "El email ya está registrado");
     } else {
       handleErrorServer(res, 500, "Error interno del servidor", error.message);

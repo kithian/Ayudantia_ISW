@@ -1,7 +1,7 @@
-import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
-import { updateUserById, deleteUserById } from "../services/user.service.js";
-import { AppDataSource } from "../config/configDb.js"; 
-import { User } from "../entities/user.entity.js"; 
+import { handleSuccess, handleErrorClient } from "../Handlers/responseHandlers.js";
+import { userRepository } from "../services/user.service.js";
+import { userUpdateValidation } from "../validation/auth.validation.js";
+import bcrypt from "bcrypt";
 
 export function getPublicProfile(req, res) {
   handleSuccess(res, 200, "Perfil público obtenido exitosamente", {
@@ -11,29 +11,75 @@ export function getPublicProfile(req, res) {
 
 export async function getPrivateProfile(req, res) {
   try {
-    const user = req.user;
-    const userRepository = AppDataSource.getRepository(User);
-    const fullUser = await userRepository.findOne({
-      where: { id: user.sub },
-      select: ["id", "email", "password"]
-    });
-
-    if (!fullUser) {
-      return handleErrorClient(res, 404, "No registrado");
+    const userId = req.user?.sub;
+    if (!userId) {
+      return res.status(400).json({ message: 'Token inválido' });
     }
-
-    handleSuccess(res, 200, "Perfil privado obtenido exitosamente", {
-      message: `¡Hola, ${fullUser.email}! Este es tu perfil privado. Solo tú puedes verlo.`,
-      userData: {
-        id: fullUser.id,
-        email: fullUser.email,
-        password: fullUser.password
-      },
+    const userFromDb = await userRepository.findOneBy({ id: userId });
+    if (!userFromDb) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    // Devolver el usuario completo incluyendo el hash de la contraseña
+    handleSuccess(res, 200, 'Perfil privado obtenido exitosamente', {
+      message: `¡Hola, ${userFromDb.email}! Este es tu perfil privado. Solo tú puedes verlo.`,
+      userData: userFromDb,
     });
   } catch (error) {
-    return handleErrorServer(res, 500, "Error al obtener el perfil", error.message);
+    return res.status(500).json({ message: 'Error al obtener perfil', error: error.message });
   }
 }
+
+
+export async function updateProfile(req, res) {
+  try {
+    const userId = req.user.sub;
+
+    // Validar solo los campos presentes
+  const { error } = userUpdateValidation.validate(
+    req.body, 
+    { presence: "optional", abortEarly: false } 
+  );
+    if (error) {
+      return res
+        .status(400)
+        .json({ message: "Datos inválidos", details: error.message });
+    }
+
+  const { email, password } = req.body;
+
+  const user = await userRepository.findOneBy({ id: userId });
+  if (!user) {
+    return res.status(404).json({ message: "Usuario no encontrado" });
+  }
+  if (email) user.email = email;
+  if (password) user.password = await bcrypt.hash(password, 10);
+  await userRepository.save(user);
+  return res
+    .status(200)
+    .json({ message: "Perfil actualizado correctamente" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al actualizar perfil", error: error.message });
+}
+}
+
+export async function deleteProfile(req, res) {
+  try {
+    const userId = req.user.sub;
+    const user = await userRepository.findOneBy({ id: userId });
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    await userRepository.remove(user);
+    return res.status(200).json({ message: "Perfil eliminado correctamente" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al eliminar perfil", error: error.message });
+  }
+}
+
 
 
 
