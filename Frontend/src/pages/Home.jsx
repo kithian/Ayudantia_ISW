@@ -1,11 +1,8 @@
 import { useState } from 'react';
-import Cookies from 'js-cookie';
-import axios from '../services/root.service.js' // llamada a una URL o una aPI
 import { getProfile, updateProfile, deleteProfile } from '../services/profile.service.js';
 
 const Home = () => {
   const [profileData, setProfileData] = useState(null);
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
   const [editing, setEditing] = useState(false);
   const [emailEdit, setEmailEdit] = useState('');
   const [passwordEdit, setPasswordEdit] = useState('');

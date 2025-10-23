@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 
 export function getPublicProfile(req, res) {
   handleSuccess(res, 200, "Perfil público obtenido exitosamente", {
-    message: "¡Hola! Este es un perfil público. Cualquiera puede verlo.",
+    message: "¡Hola! Este es un perfil público.",
   });
 }
 
@@ -19,7 +19,7 @@ export async function getPrivateProfile(req, res) {
     if (!userFromDb) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-    // Devolver el usuario completo incluyendo el hash de la contraseña
+    
     handleSuccess(res, 200, 'Perfil privado obtenido exitosamente', {
       message: `¡Hola, ${userFromDb.email}! Este es tu perfil privado. Solo tú puedes verlo.`,
       userData: userFromDb,
@@ -34,7 +34,7 @@ export async function updateProfile(req, res) {
   try {
     const userId = req.user.sub;
 
-    // Validar solo los campos presentes
+   
   const { error } = userUpdateValidation.validate(
     req.body, 
     { presence: "optional", abortEarly: false } 
